@@ -17,7 +17,7 @@ Expr* expVar(char* var){
     return node;
 }
 
-Expr* exprOp(int op, Expr* left, Expr* right){
+Expr* expOp(int op, Expr* left, Expr* right){
     Expr* node = (Expr*)malloc(sizeof(Expr));
     node->kind = E_OPERATION;
     node->attr.op.operator = op;
@@ -160,18 +160,38 @@ CharBlock* addCharBlock(char* sentence, CharBlock* block){
 }
 
 //Print-------------------------------------------------------------------------
-Print* printExp(char* sentence, CharBlock* var_block){
+Print* printExp(Expr* exp){
     Print* node = (Print*)malloc(sizeof(Print));
-    node->string_val = sentence;
-    node->vars = var_block;
+    node->kind = P_EXP;
+    node->printstring.exp = exp;
+    return node;
+}
+
+Print* printVar(char* varname){
+    Print* node = (Print*)malloc(sizeof(Print));
+    node->kind = P_VAR;
+    node->printstring.varname = varname;
+    return node;
+}
+
+Print* printBool(BoolExpr* bool){
+    Print* node = (Print*)malloc(sizeof(Print));
+    node->kind = P_BOOL;
+    node->printstring.bool = bool;
+    return node;
+}
+
+Print* printBoolBlock(BoolBlock* block){
+    Print* node = (Print*)malloc(sizeof(Print));
+    node->kind = P_BOOLBLOCK;
+    node->printstring.block = block;
     return node;
 }
 
 //Read--------------------------------------------------------------------------
-Read* readExp(char* string, CharBlock* var_block){
+Read* readLine(char* varname){
     Read* node = (Read*)malloc(sizeof(Read));
-    node->string_val = string;
-    node->vars = var_block;
+    node->varname = varname;
     return node;
 }
 
@@ -193,10 +213,43 @@ While* whileBool(BoolBlock* bool, CmdBlock* block){
 }
 
 //Comand and Comand block possible commands-------------------------------------
-Cmd* cmdLet(Let*);
-Cmd* cmdIf(If*);
-Cmd* cmdWhile(While*);
-Cmd* cmdPrint(Print*);
-Cmd* cmdRead(Read*);
+Cmd* cmdLet(Let* let_c){
+    Cmd* node = (Cmd*)malloc(sizeof(Cmd));
+    node->kind = C_LET;
+    node->command.let_cmd = let_c;
+    return node;
+}
 
-CmdBlock* addCmdBlock(Cmd*,CmdBlock*);
+Cmd* cmdIf(If* if_c){
+    Cmd* node = (Cmd*)malloc(sizeof(Cmd));
+    node->kind = C_IF;
+    node->command.if_cmd = if_c;
+    return node;
+}
+
+Cmd* cmdWhile(While* while_c){
+    Cmd* node = (Cmd*)malloc(sizeof(Cmd));
+    node->kind = C_WHILE;
+    node->command.while_cmd = while_c;
+    return node;
+}
+
+Cmd* cmdPrint(Print* print_c){
+    Cmd* node = (Cmd*)malloc(sizeof(Cmd));
+    node->kind = C_PRINT;
+    node->command.print_cmd = print_c;
+    return node;
+}
+
+Cmd* cmdRead(Read* read_c){
+    Cmd* node = (Cmd*)malloc(sizeof(Cmd));
+    node->kind = C_READ;
+    node->command.read_cmd = read_c;
+    return node;
+}
+
+CmdBlock* addCmdBlock(Cmd* cmd, CmdBlock* block){
+    CmdBlock* node = (CmdBlock*)malloc(sizeof(CmdBlock));
+    node->cmd = cmd;
+    node->next = block;
+}

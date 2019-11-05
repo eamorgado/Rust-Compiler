@@ -1,7 +1,3 @@
-//Flex file for rust
-
-DECIMAL [0-9]
-
 %{
     #include <stdlib.h>
     #include "parser.h"
@@ -9,16 +5,14 @@ DECIMAL [0-9]
     int yyline = 1;
 %}
 
-%option noywrap
+%option noyywrap
 
 %%
 
 "//".*\n                {/*Comment => consume*/ yyline++;}
 [ \t]+                  {/*Tab => consume*/}
 \n                      {yyline++;}
-[a-zA-Z_][a-zA-Z0-9_]*  {return TOKEN_VAR;}
-\-?DECIMAL+.DECIMAL*    {yylval.doubleVal = atof(yytext); return DOUBLE;}
-\-?DECIMAL+             {yylval.intValue = atoi(yytext); return INT;}
+\-?[0-9]+             {yylval.int_val = atoi(yytext); return INT;}
 
 
 "+"         {return ADD_OP;}
@@ -49,13 +43,8 @@ DECIMAL [0-9]
 "else"      {return ELSE_OP;}
 
 "while"     {return WHILE_OP;}
-"break"     {return BRK_OP;}
-"true"      {yylval.boolVal = 1; return TRUE_VAL;}
-"false"     {yylval.boolVal = 0; return FALSE_VAL;}
 "println!"  {return PRINT_CMD;}
-"io::stdin().read_line" {return READ_CMD;}
-"use"       {return USE_CMD;}
-"std::io"   {return STD_IO;}
+"read_line!" {return READ_CMD;}
 
 "{"         {return OPEN_BRACKET;}
 "}"         {return CLOSE_BRACKET;}
@@ -63,6 +52,8 @@ DECIMAL [0-9]
 ")"         {return CLOSE_PARENT;}
 
 ";"         {return SEMICOLON;}
+
+[a-zA-Z_][a-zA-Z0-9_]*  {return VARNAME;}
 
 .           {yyerror("Unexpected character");}
 %%

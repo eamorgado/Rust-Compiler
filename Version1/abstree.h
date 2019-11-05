@@ -56,24 +56,28 @@ typedef struct _CharBlock{
 }CharBlock;
 
 typedef struct _Print{
-    char* string_val;
-    CharBlock* vars;
+    enum{P_VAR, P_EXP, P_BOOL, P_BOOLBLOCK}kind;
+    union{
+        char* varname;
+        Expr* exp;
+        BoolExpr* bool;
+        BoolBlock* block;
+    }printstring;
 }Print;
 
 typedef struct _Read{
-    char* string_val;
-    CharBlock* vars;
+    char* varname;
 }Read;
 
 typedef struct _Cmd{
-    enum{E_WHILE, E_PRINT, E_READ, E_IF, E_LET}kind;
+    enum{C_WHILE, C_PRINT, C_READ, C_IF, C_LET}kind;
     union{
-        Let* let;
-        Print* print;
-        Read* read;
-        If* If;
-        While* While;
-    }type;
+        struct _Let* let_cmd;
+        Print* print_cmd;
+        Read* read_cmd;
+        struct _If* if_cmd;
+        struct _While* while_cmd;
+    }command;
 }Cmd;
 
 typedef struct _CmdBlock{
@@ -81,33 +85,35 @@ typedef struct _CmdBlock{
     struct _CmdBlock* next;
 }CmdBlock;
 
-typedef struct _While{
+struct _While{
     enum{W_EXP, W_BOOL}kind;
     union{
         BoolBlock* bool_val;
         Expr* exp_val;
     }condition;
     CmdBlock* while_block;
-}While;
+};
 
-typedef struct _If{
+struct _If{
     enum{I_EXP, I_BO, I_ELSE_EXP, I_ELSE_BO}kind;
     union{
         BoolBlock* bool_val;
-        Expr* exp_val;
+        struct _Expr* exp_val;
     }condition;
     union{
-        Else* else_val;
+        struct _Else* else_val;
     }elseclause;
     CmdBlock* if_block;
-}If;
+};
 
-typedef struct _Else{
+struct _Else{
     CmdBlock* else_block;
-}Else;
+};
 
-
-
+typedef struct _Let Let;
+typedef struct _While While;
+typedef struct _If If;
+typedef struct _Else Else;
 /*------------------------------------------------------------------------------
                                 Constructors
 ------------------------------------------------------------------------------*/
@@ -115,7 +121,7 @@ typedef struct _Else{
 //Expressions-------------------------------------------------------------------
 Expr* expInt(int);
 Expr* expVar(char*);
-Expr* exprOp(int,Expr*,Expr*);
+Expr* expOp(int,Expr*,Expr*);
 
 //Bool Expressions--------------------------------------------------------------
 BoolExpr* boolNorm(Expr*);
@@ -145,17 +151,19 @@ Else* elseExp(CmdBlock*);
 CharBlock* addCharBlock(char*,CharBlock*);
 
 //Print-------------------------------------------------------------------------
-Print* printExp(char*,CharBlock*);
+Print* printExp(Expr*);
+Print* printVar(char*);
+Print* printBool(BoolExpr*);
+Print* printBoolBlock(BoolBlock*);
 
 //Read--------------------------------------------------------------------------
-Read* readExp(char*,CharBlock*);
+Read* readLine(char*);
 
 //While-------------------------------------------------------------------------
 While* whileExp(Expr*,CmdBlock*);
 While* whileBool(BoolBlock*,CmdBlock*);
 
 //Comand and Comand block possible commands-------------------------------------
-Cmd* cmdAttrib(Attrib*);
 Cmd* cmdLet(Let*);
 Cmd* cmdLetMut(Let*);
 Cmd* cmdIf(If*);
