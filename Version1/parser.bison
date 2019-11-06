@@ -105,8 +105,10 @@ println:   PRINT_CMD OPEN_PARENT exp CLOSE_PARENT SEMICOLON        {$$ = printEx
 
 read_line:  READ_CMD OPEN_PARENT VARNAME CLOSE_PARENT SEMICOLON     {$$ = readLine($3);};
 
-let:     LET_OP VARNAME SEMICOLON               {$$ = letCmd($2);}
-    |    LET_OP VARNAME ATTR_OP exp SEMICOLON   {$$ = letShadow($2,$4);};
+let:     LET_OP VARNAME SEMICOLON                       {$$ = letCmd($2);}
+    |    LET_OP VARNAME ATTR_OP exp SEMICOLON           {$$ = letShadowExp($2,$4);}
+    |    LET_OP VARNAME ATTR_OP bool_exp SEMICOLON      {$$ = letShadowBool($2,$4);}
+    |    LET_OP VARNAME ATTR_OP bool_block SEMICOLON    {$$ = letShadowBoolBlock($2,$4);}
 
 exp:    INT             {$$ = expInt($1);}
     |   VARNAME         {$$ = expVar($1);}

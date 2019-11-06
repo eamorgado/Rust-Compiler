@@ -5,7 +5,7 @@
 //Expressions-------------------------------------------------------------------
 Expr* expInt(int v){
     Expr* node = (Expr*)malloc(sizeof(Expr));
-    node->kind = E_INTEGER;
+    node->kind = E_INT;
     node->attr.value = v;
     return node;
 }
@@ -96,20 +96,32 @@ BoolBlock* boolExpBlock(Expr* exp, BoolBlock* next){
 //Let---------------------------------------------------------------------------
 Let* letCmd(char* varname){
     Let* node = (Let*)malloc(sizeof(Let));
-    node->kind = LET_START;
-    node->attr.op.var = varname;
-    node->attr.op.value = NULL;
+    node->kind = L_START;
+    node->varname = varname;
     return node;
 }
 
-Let* letShadow(char* varname, Expr* exp){
+Let* letShadowExp(char* varname, Expr* exp){
     Let* node = (Let*)malloc(sizeof(Let));
-    node->kind = LET_SHADOW;
-    node->attr.op.var = varname;
-    node->attr.op.value = exp;
+    node->kind = L_SH_EXP;
+    node->varname = varname;
+    node->initialize.exp_value = exp;
     return node;
 }
-
+Let* letShadowBool(char* varname, BoolExpr* bool){
+    Let* node = (Let*)malloc(sizeof(Let));
+    node->kind = L_SH_BOOL;
+    node->varname = varname;
+    node->initialize.bool_value = bool;
+    return node;
+}
+Let* letShadowBoolBlock(char* varname, BoolBlock* block){
+    Let* node = (Let*)malloc(sizeof(Let));
+    node->kind = L_SH_BLOCK;
+    node->varname = varname;
+    node->initialize.bool_block = block;
+    return node;
+}
 //If----------------------------------------------------------------------------
 If* ifExp(Expr* exp, CmdBlock* block){
     If* node = (If*)malloc(sizeof(If));
@@ -148,14 +160,6 @@ If* ifElseBoolExp(BoolBlock* bool, CmdBlock* block, Else* else_block){
 Else* elseExp(CmdBlock* block){
     Else* node = (Else*)malloc(sizeof(Else));
     node->else_block = block;
-    return node;
-}
-
-//CharBlock any sequence inside {}----------------------------------------------
-CharBlock* addCharBlock(char* sentence, CharBlock* block){
-    CharBlock* node = (CharBlock*)malloc(sizeof(CharBlock));
-    node->val = sentence;
-    node->next = block;
     return node;
 }
 

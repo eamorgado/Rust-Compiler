@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include "parser.h"
-
-void print(Cmd* cmd){
-    if(cmd->kind == P_EXP) printf("It worked\n");
-}
+#include "printer.h"
 
 int main(int argc, char** argv){
     if(argc != 1){
@@ -13,9 +10,11 @@ int main(int argc, char** argv){
             return 1;
         }
         if(yyparse() == 0){
-            //print(root->cmd);
-            //while(root->next != NULL) root = root->next;
-            printf("Exit success\n");
+            do{
+                printCmd(root,0);
+                root = root->next;
+            }while(root != NULL);
+            printf("\n\nSuccess");
             return 0;
         }
         printf("error parsing\n");

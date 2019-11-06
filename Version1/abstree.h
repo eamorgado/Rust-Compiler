@@ -4,30 +4,20 @@
 /*------------------------------------------------------------------------------
                             Types definitions
 ------------------------------------------------------------------------------*/
-typedef struct _Expr{
-    enum{E_INTEGER, E_OPERATION, E_VAR}kind;
+typedef struct express{
+    enum{E_INT, E_OPERATION, E_VAR}kind;
     union{
         int value; //value for integers
         char* var; //value for vars
         struct {
             int operator; //+ - * / %
-            struct _Expr* left;
-            struct _Expr* right;
+            struct express* left;
+            struct express* right;
         }op;
     }attr;
 }Expr;
 
-typedef struct _Let{
-    enum{LET_START, LET_SHADOW}kind;
-    union{
-        struct{
-            char* var;
-            Expr* value;
-        }op;
-    }attr;
-}Let;
-
-typedef struct _BoolExpr{
+typedef struct boolexp{
     enum{B_BOOL, B_BOOLOP}kind; //{true,false} {!, ==, !=, <,>,<=,>=}
     union{
         Expr* value; //var with value true or false
@@ -39,23 +29,28 @@ typedef struct _BoolExpr{
     }attr;
 }BoolExpr;
 
-typedef struct _BoolBlock{
+typedef struct boolstring{
     enum{B_AND, B_OR, B_NORM, B_EAND, B_EOR, B_ENORM}kind;
     struct{
         union{
             BoolExpr* bool_val;
             Expr* exp_val;
         }current_bool;
-        struct _BoolBlock* next;
+        struct boolstring* next;
     }block;
 }BoolBlock;
 
-typedef struct _CharBlock{
-    char* val;
-    struct _CharBlock* next;
-}CharBlock;
+typedef struct letstatement{
+    enum{L_START, L_SH_EXP, L_SH_BOOL, L_SH_BLOCK}kind;
+    char* varname;
+    struct{
+        Expr* exp_value;
+        BoolExpr* bool_value;
+        BoolBlock* bool_block;
+    }initialize;
+}Let;
 
-typedef struct _Print{
+typedef struct println_macro{
     enum{P_VAR, P_EXP, P_BOOL, P_BOOLBLOCK}kind;
     union{
         char* varname;
@@ -65,27 +60,27 @@ typedef struct _Print{
     }printstring;
 }Print;
 
-typedef struct _Read{
+typedef struct read_line{
     char* varname;
 }Read;
 
-typedef struct _Cmd{
+typedef struct instruction_cmd{
     enum{C_WHILE, C_PRINT, C_READ, C_IF, C_LET}kind;
     union{
-        struct _Let* let_cmd;
+        Let* let_cmd;
         Print* print_cmd;
         Read* read_cmd;
-        struct _If* if_cmd;
-        struct _While* while_cmd;
+        struct if_command* if_cmd;
+        struct while_command* while_cmd;
     }command;
 }Cmd;
 
-typedef struct _CmdBlock{
+typedef struct command_sequence{
     Cmd* cmd;
-    struct _CmdBlock* next;
+    struct command_sequence* next;
 }CmdBlock;
 
-struct _While{
+struct while_command{
     enum{W_EXP, W_BOOL}kind;
     union{
         BoolBlock* bool_val;
@@ -94,26 +89,25 @@ struct _While{
     CmdBlock* while_block;
 };
 
-struct _If{
+struct if_command{
     enum{I_EXP, I_BO, I_ELSE_EXP, I_ELSE_BO}kind;
     union{
         BoolBlock* bool_val;
-        struct _Expr* exp_val;
+        Expr* exp_val;
     }condition;
     union{
-        struct _Else* else_val;
+        struct else_command* else_val;
     }elseclause;
     CmdBlock* if_block;
 };
 
-struct _Else{
+struct else_command{
     CmdBlock* else_block;
 };
 
-typedef struct _Let Let;
-typedef struct _While While;
-typedef struct _If If;
-typedef struct _Else Else;
+typedef struct while_command While;
+typedef struct if_command If;
+typedef struct else_command Else;
 /*------------------------------------------------------------------------------
                                 Constructors
 ------------------------------------------------------------------------------*/
@@ -138,7 +132,9 @@ BoolBlock* boolExpBlock(Expr*,BoolBlock*);
 
 //Let---------------------------------------------------------------------------
 Let* letCmd(char*);
-Let* letShadow(char*,Expr*);
+Let* letShadowExp(char*,Expr*);
+Let* letShadowBool(char*,BoolExpr*);
+Let* letShadowBoolBlock(char*,BoolBlock*);
 
 //If----------------------------------------------------------------------------
 If* ifExp(Expr*,CmdBlock*);
@@ -146,9 +142,6 @@ If* ifBoolExp(BoolBlock*,CmdBlock*);
 If* ifElseExp(Expr*,CmdBlock*,Else*);
 If* ifElseBoolExp(BoolBlock*,CmdBlock*,Else*);
 Else* elseExp(CmdBlock*);
-
-//CharBlock any sequence inside {}----------------------------------------------
-CharBlock* addCharBlock(char*,CharBlock*);
 
 //Print-------------------------------------------------------------------------
 Print* printExp(Expr*);
