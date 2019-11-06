@@ -11,7 +11,7 @@ int main(int argc, char** argv){
         }
         if(yyparse() == 0){
             do{
-                printCmd(root,0);
+                printCmdBlock(root,0);
                 root = root->next;
             }while(root != NULL);
             printf("\n\nSuccess");

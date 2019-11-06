@@ -9,7 +9,7 @@ void giveSpaces(int n){
 
 void printCmdBlock(CmdBlock* node, int n){
     do{
-        printCmd(node,n);
+        printCmd(node->cmd,n);
         node = node->next;
     }while(node != NULL);
 }
@@ -64,7 +64,13 @@ void printIf(If* cmd, int n){
     }
     printCmdBlock(cmd->if_block,n);
     if(cmd->kind == I_ELSE_EXP || cmd->kind == I_ELSE_BO)
-        pprintElse(cmd->elseclause.else_val,n);
+        printElse(cmd->elseclause.else_val,n);
+}
+
+void printElse(CmdBlock* cmd, int n){
+    giveSpaces(n);
+    printf("else\n");
+    printCmdBlock(cmd,n);
 }
 
 void printLet(Let* cmd, int n){
@@ -84,15 +90,16 @@ void pprintExp(Expr* exp, int n){
     switch(exp->kind){
         case E_INT:  printf("%d\n",exp->attr.value); break;
         case E_OPERATION:
-            char o;
+            char tmp;
             switch(exp->attr.op.operator){
-                case ADD_OP: o = '+'; break;
-                case SUB_OP: o = '-'; break;
-                case MULT_OP: o = '*'; break;
-                case DIV_OP: o = '/'; break;
-                case MOD_OP: o = '%'; break;
+                case ADD_OP: tmp = '+'; break;
+                case SUB_OP: tmp = '-'; break;
+                case MULT_OP: tmp = '*'; break;
+                case DIV_OP: tmp = '/'; break;
+                case MOD_OP: tmp = '%'; break;
+                default: tmp = 'n'; break;
             }
-            printf("%c\n",o);
+            printf("%c\n",tmp);
             pprintExp(exp->attr.op.left,n);
             pprintExp(exp->attr.op.right,n);
         break;
@@ -119,14 +126,14 @@ void pprintBool(BoolExpr* bool, int n){
     }
 }
 
-void pprintBoolBlock(BoolBlock* block, int n){
-    int k = block->kind;
+void pprintBoolBlock(BoolBlock* b, int n){
+    int k = b->kind;
     switch(k){
         case B_EAND: case B_EOR: case B_ENORM:  
-            pprintExp(block->block.current_bool.exp_val,n);
+            pprintExp(b->block.current_bool.exp_val,n);
         break;
         case B_AND: case B_OR: case B_NORM:
-            pprintBool(block->block.current_bool.bool_val,n);
+            pprintBool(b->block.current_bool.bool_val,n);
         break;
     }
     if(k != B_ENORM || k != B_NORM){
@@ -134,8 +141,8 @@ void pprintBoolBlock(BoolBlock* block, int n){
         char c = (k == B_EAND || k == B_AND)? '&' : '|';
         printf("%c%c\n",c,c);
     }
-    if(block->block.next != NULL){
-        block = block->block.next;
-        pprintBoolBlock(block,n);
+    if(b->block.next != NULL){
+        b = b->block.next;
+        pprintBoolBlock(b,n);
     }
 }
