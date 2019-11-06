@@ -1,4 +1,4 @@
-OBJS=scanner.o parser.o abstree.o interpreter.o printer.o
+OBJS=scanner.o parser.o abstree.o interpreter.o
 INTERM=scanner.c parser.c parser.h 
 PROGRAM=./interpreter
 CFLAGS=-g 
@@ -12,7 +12,6 @@ parser.c parser.h: parser.bison
 	bison --defines=parser.h -o parser.c parser.bison
 
 $(PROGRAM): $(OBJS)
-	$(CC) -o printer.c
 	$(CC) -o $(PROGRAM) $(OBJS)
 clean:
 	rm -f $(PROGRAM) $(OBJS) $(INTERM)

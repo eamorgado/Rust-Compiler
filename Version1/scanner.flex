@@ -53,7 +53,7 @@
 
 ";"         {return SEMICOLON;}
 
-[a-zA-Z_][a-zA-Z0-9_]*  {return VARNAME;}
+[a-zA-Z_][a-zA-Z0-9_]*  {yylval.var_val = yytext; return VARNAME;}
 
 .           {yyerror("Unexpected character");}
 %%
