@@ -24,7 +24,6 @@
 "&&"        {return AND_OP;}
 "||"        {return OR_OP;}
 
-"!"         {return NOT_OP;}
 "=="        {return EQ_OP;}
 "!="        {return NOT_EQ_OP;}
 ">"         {return GRT_OP;}

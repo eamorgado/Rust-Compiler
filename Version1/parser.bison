@@ -2,7 +2,6 @@
 %token READ_CMD PRINT_CMD
 %token ADD_OP SUB_OP MULT_OP MOD_OP DIV_OP
 %token AND_OP OR_OP NOT_OP EQ_OP NOT_EQ_OP
-%token TRUE_VAL FALSE_VAL
 %token GRT_OP LT_OP GRT_EQ_OP LT_EQ_OP
 %token ATTR_O
 %token F_MAIN F_DEC
@@ -16,11 +15,14 @@
 
 
 //Token precedence
-%left F_DEC F_MAIN LET_OP ATTR_OP WHILE_OP IF_OP ELSE_OP OPEN_BRACKET CLOSE_BRACKET OPEN_PARENT CLOSE_PARENT SEMICOLON AND_OP OR_OP NOT_OP
+%left F_DEC F_MAIN LET_OP ATTR_OP
+//Token precedence
+%left SEMICOLON
+%left AND_OP OR_OP
 %left GRT_OP GRT_EQ_OP LT LT_EQ_OP EQ_OP NOT_EQ_OP
 %left ADD_OP SUB_OP
 %left MULT_OP DIV_OP MOD_OP
-%left INT TRUE_VAL FALSE_VAL
+
 
 
 //root grammar symbol
@@ -29,7 +31,6 @@
 
 %union{
     int int_val;
-    int bool_val;
     Expr* exp_val;
     BoolExpr* boolexp_val;
     BoolBlock* boolblock_val;
@@ -71,21 +72,14 @@
     extern void yyerror(const char* errormsg);
 
     CmdBlock* root;
-    Expr* root_exp;
-    BoolExpr* root_bool;
-    Let* root_let;
-    While* root_while;
-    Print* root_print;
-    Read* root_read;
 }
 
 
 %%
 
-program: 
+program:
     F_DEC F_MAIN OPEN_PARENT CLOSE_PARENT OPEN_BRACKET cmd_block CLOSE_BRACKET
         {root = $6;};
-
 
 cmd_block:  cmd cmd_block   {$$ = addCmdBlock($1,$2);}
         |   cmd             {$$ = addCmdBlock($1,NULL);};
@@ -135,10 +129,10 @@ bool_block: bool_exp AND_OP bool_block  {$$ = boolAnd($1,$3);}
 while:  WHILE_OP OPEN_PARENT exp CLOSE_PARENT OPEN_BRACKET cmd_block CLOSE_BRACKET          {$$ = whileExp($3,$6);}
     |   WHILE_OP OPEN_PARENT bool_block CLOSE_PARENT OPEN_BRACKET cmd_block CLOSE_BRACKET   {$$ = whileBool($3,$6);};
 
-if:   IF_OP OPEN_PARENT exp CLOSE_PARENT OPEN_BRACKET cmd_block CLOSE_BRACKET               {$$ = ifExp($3,$6);}
-  |   IF_OP OPEN_PARENT bool_block CLOSE_PARENT OPEN_BRACKET cmd_block CLOSE_BRACKET        {$$ = ifBoolExp($3,$6);}
-  |   IF_OP OPEN_PARENT exp CLOSE_PARENT OPEN_BRACKET cmd_block CLOSE_BRACKET else          {$$ = ifElseExp($3,$6,$8);}
-  |   IF_OP OPEN_PARENT bool_block CLOSE_PARENT OPEN_BRACKET cmd_block CLOSE_BRACKET else   {$$ = ifElseBoolExp($3,$6,$8);};
+if:   IF_OP exp OPEN_BRACKET cmd_block CLOSE_BRACKET               {$$ = ifExp($2,$4);}
+  |   IF_OP bool_block OPEN_BRACKET cmd_block CLOSE_BRACKET        {$$ = ifBoolExp($2,$4);}
+  |   IF_OP exp OPEN_BRACKET cmd_block CLOSE_BRACKET else          {$$ = ifElseExp($2,$4,$6);}
+  |   IF_OP bool_block OPEN_BRACKET cmd_block CLOSE_BRACKET else   {$$ = ifElseBoolExp($2,$4,$6);};
 
 else: ELSE_OP OPEN_BRACKET cmd_block CLOSE_BRACKET  {$$ = elseExp($3);};
 

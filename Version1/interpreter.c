@@ -2,53 +2,60 @@
 #include "parser.h"
 
 
-
 void giveSpaces(int n){
-    for(int i = 0; i < n; i++)
-        printf(" ");
+    for(int i = 0; i < n; i++) printf(" ");
 }
 
+void giveHyphen(int n){
+    for(int i = 0; i < n; i++) printf("-");
+}
+
+void giveVertical(int n){
+    for(int i = 0; i < n; i++) printf("|\n");
+}
+ 
 void printCmdBlock(CmdBlock* node, int n){
-    do{
+    while(node){
         printCmd(node->cmd,n);
         node = node->next;
-    }while(node != NULL);
+        printf("\n\n");
+    }  
 }
 
 void printCmd(Cmd* cmd, int n){
     switch(cmd->kind){
-        case C_WHILE: printWhile(cmd->command.while_cmd,n); break;
-        case C_PRINT: printPrint(cmd->command.print_cmd,n); break;
-        case C_READ: printRead(cmd->command.read_cmd,n); break;
-        case C_IF: printIf(cmd->command.if_cmd,n); break;
-        case C_LET: printLet(cmd->command.let_cmd,n); break;
+        case C_WHILE: printWhile(cmd->command.while_cmd,n+2); break;
+        case C_PRINT: printPrint(cmd->command.print_cmd,n+2); break;
+        case C_READ: printRead(cmd->command.read_cmd,n+2); break;
+        case C_IF: printIf(cmd->command.if_cmd,n+2); break;
+        case C_LET: printLet(cmd->command.let_cmd,n+2); break;
     }
 }
 
 void printWhile(While* cmd, int n){
     giveSpaces(n);
     printf("while\n");
-    if(cmd->kind == W_EXP) pprintExp(cmd->condition.exp_val,n);
-    else pprintBoolBlock(cmd->condition.bool_val,n);
-    printCmdBlock(cmd->while_block,n);
+    if(cmd->kind == W_EXP) pprintExp(cmd->condition.exp_val,n+2);
+    else pprintBoolBlock(cmd->condition.bool_val,n+2);
+    printCmdBlock(cmd->while_block,n+2);
 }
 
 void printPrint(Print* cmd, int n){
     giveSpaces(n);
     printf("println!\n");
-    giveSpaces(n);
+    giveSpaces(n+2);
     switch(cmd->kind){
         case P_VAR: printf("%s\n",cmd->printstring.varname); break;
-        case P_EXP: pprintExp(cmd->printstring.exp,n); break;
-        case P_BOOL: pprintBool(cmd->printstring.bool,n); break;
-        case P_BOOLBLOCK: pprintBoolBlock(cmd->printstring.block,n); break;
+        case P_EXP: pprintExp(cmd->printstring.exp,n+2); break;
+        case P_BOOL: pprintBool(cmd->printstring.bool,n+2); break;
+        case P_BOOLBLOCK: pprintBoolBlock(cmd->printstring.block,n+2); break;
     }
 }
 
 void printRead(Read* cmd, int n){
     giveSpaces(n);
     printf("read_line!\n");
-    giveSpaces(n);
+    giveSpaces(n+2);
     printf("%s\n",cmd->varname);
 }
 
@@ -57,13 +64,13 @@ void printIf(If* cmd, int n){
     printf("if\n");
     switch(cmd->kind){
         case I_EXP: case I_ELSE_EXP:
-            pprintExp(cmd->condition.exp_val,n);  
+            pprintExp(cmd->condition.exp_val,n+2);  
         break;
         case I_BO: case I_ELSE_BO:
-            pprintBoolBlock(cmd->condition.bool_val,n);
+            pprintBoolBlock(cmd->condition.bool_val,n+2);
         break;
     }
-    printCmdBlock(cmd->if_block,n);
+    printCmdBlock(cmd->if_block,n+4);
     if(cmd->kind == I_ELSE_EXP || cmd->kind == I_ELSE_BO)
         printElse(cmd->elseclause.else_val,n);
 }
@@ -71,19 +78,18 @@ void printIf(If* cmd, int n){
 void printElse(CmdBlock* cmd, int n){
     giveSpaces(n);
     printf("else\n");
-    printCmdBlock(cmd,n);
+    printCmdBlock(cmd,n+2);
 }
 
 void printLet(Let* cmd, int n){
     giveSpaces(n);
     printf("let\n");
-    giveSpaces(n);
-    printf("\n\nhere\n\n");
+    giveSpaces(n+2);
     printf("%s\n",cmd->varname);
     switch(cmd->kind){
-        case L_SH_EXP: pprintExp(cmd->initialize.exp_value,n); break;
-        case L_SH_BOOL: pprintBool(cmd->initialize.bool_value,n); break;
-        case L_SH_BLOCK: pprintBoolBlock(cmd->initialize.bool_block,n); break;
+        case L_SH_EXP: pprintExp(cmd->initialize.exp_value,n+4); break;
+        case L_SH_BOOL: pprintBool(cmd->initialize.bool_value,n+4); break;
+        case L_SH_BLOCK: pprintBoolBlock(cmd->initialize.bool_block,n+4); break;
     }
 }
 
@@ -99,8 +105,8 @@ void pprintExp(Expr* exp, int n){
                 case DIV_OP: printf("/\n"); break;
                 case MOD_OP: printf("%c\n",'%'); break;
             }
-            pprintExp(exp->attr.op.left,n);
-            pprintExp(exp->attr.op.right,n);
+            pprintExp(exp->attr.op.left,n+2);
+            pprintExp(exp->attr.op.right,n+2);
         break;
         case E_VAR: printf("%s\n",exp->attr.var); break;
     }
@@ -116,12 +122,13 @@ void pprintBool(BoolExpr* bool, int n){
             case NOT_EQ_OP: c = '!'; break;
             case EQ_OP: c = '='; break;    
         }
+        giveSpaces(n);
         printf("%c",c);
         if(op == GRT_EQ_OP || op == LT_EQ_OP || op == NOT_EQ_OP || op == EQ_OP)
             printf("=");
         printf("\n");
-        pprintExp(bool->attr.op.left,n);
-        pprintExp(bool->attr.op.right,n);
+        pprintExp(bool->attr.op.left,n+2);
+        pprintExp(bool->attr.op.right,n+2);
     }
 }
 
@@ -136,13 +143,13 @@ void pprintBoolBlock(BoolBlock* b, int n){
         break;
     }
     if(k != B_ENORM || k != B_NORM){
-        giveSpaces(n);
+        giveSpaces(n+4);
         char c = (k == B_EAND || k == B_AND)? '&' : '|';
         printf("%c%c\n",c,c);
     }
     if(b->block.next != NULL){
         b = b->block.next;
-        pprintBoolBlock(b,n);
+        pprintBoolBlock(b,n+6);
     }
 }
 
@@ -156,13 +163,9 @@ int main(int argc, char** argv){
             return 1;
         }
         if(yyparse() == 0){
-            printf("fn main()\n");
+            char v[9] = "fb main()";
+            printf("fb main()\n");
             printCmdBlock(root,0);
-            while(root->next != NULL){
-                printCmdBlock(root,0);
-                root = root->next;
-            }
-            printf("\n\nSuccess");
             return 0;
         }
         printf("error parsing\n");
