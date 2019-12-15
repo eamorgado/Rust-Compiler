@@ -1,7 +1,7 @@
 %{
     #include <stdlib.h>
     #include "parser.h"
-
+    #include "VarList.h"
     int yyline = 1;
 %}
 
@@ -12,7 +12,7 @@
 "//".*\n                {/*Comment => consume*/ yyline++;}
 [ \t]+                  {/*Tab => consume*/}
 \n                      {yyline++;}
-\-?[0-9]+             {yylval.int_val = atoi(yytext); return INT;}
+\-?[0-9]+               {yylval.int_val = atoi(yytext); return INT;}
 
 
 "+"         {return ADD_OP;}
@@ -52,7 +52,7 @@
 
 ";"         {return SEMICOLON;}
 
-[a-zA-Z_][a-zA-Z0-9_]*  {yylval.var_val = yytext; return VARNAME;}
+[a-zA-Z_][a-zA-Z0-9_]*  {yylval.var_val = strdup(yytext); return VARNAME;}
 
 .           {yyerror("Unexpected character");}
 %%
