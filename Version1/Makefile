@@ -1,17 +1,13 @@
-INTERPRETER_OBJS=scanner.o parser.o abstree.o interpreter.o
+OBJS=scanner.o parser.o abstree.o interpreter.o
 INTERM=scanner.c parser.c parser.h 
-INTERPRETER=./interpreter
-
-COMPILER_OBJS= scanner.o parser.o abstree.o Node.o VarList.o Instruction.o InstructionList.o Mips.o Compiler.o
-COMPILER_INTERM=scanner.c parser.c parser.h Node.c VarList.c Instruction.c InstructionList.c Mips.c Compiler.c
-COMPILER=./Main
-
+PROGRAM=./interpreter
 CFLAGS=-g 
 
-all: $(INTERPRETER) 
-interpreter: $(INTERPRETER)
-compiler: $(COMPILER)
 
+COMPILER_OBJS=scanner.o parser.o abstree.o Instruction.o InstructionList.o Node.o VarList.o Mips.o Compiler.o rustCompiler.o
+COMPILER=./rustCompiler
+
+all: $(PROGRAM) $(COMPILER)
 
 scanner.c: scanner.flex parser.h
 	flex -o scanner.c scanner.flex
@@ -19,35 +15,53 @@ scanner.c: scanner.flex parser.h
 parser.c parser.h: parser.bison
 	bison --defines=parser.h -o parser.c parser.bison
 
-Node.c: Node.h
-	$(CC) -o Node Node.c
-
-VarList.c: VarList.h
-	$(CC) -o VarList VarList.c
-
-Instruction.c: Instruction.h
+Instruction: Instruction.c Instruction.h
 	$(CC) -o Instruction Instruction.c
 
-InstructionList.c: Instruction.c Instruction.h InstructionList.h
+InstructionList: InstructionList.c InstructionList.h
 	$(CC) -o InstructionList InstructionList.c
 
+Node: Node.c Node.h
+	$(CC) -o Node Node.c
 
-Mips.c: parser.c parser.h Instruction.c InstructionList.c VarList.c
+VarList: VarList.c VarList.h
+	$(CC) -o VarList VarList.c
+
+Mips: Mips.c Mips.h
 	$(CC) -o Mips Mips.c
 
-Compiler.c: parser.c parser.h Instruction.c VarList.c
-	$(CC) -o Compiler Compiler.c
+Compiler: Compiler.c Compiler.h
+	$(CC)  -o Compiler Compiler.c
 
-$(INTERPRETER): $(INTERPRETER_OBJS)
-	$(CC) -o $(INTERPRETER) $(INTERPRETER_OBJS)
+compiler: $(COMPILER)
+
+$(PROGRAM): $(OBJS)
+	$(CC) -o $(PROGRAM) $(OBJS)
 
 $(COMPILER): $(COMPILER_OBJS)
-	$(CC) -o $(COMPILER_INTERM) $(COMPILER_OBJS)
+	$(CC) -o $(COMPILER) $(COMPILER_OBJS)
 
 clean:
-	rm -f $(INTERPRETER) $(INTERPRETER_OBJS) $(INTERM)
-	rm -r $(COMPILER) $(COMPILER_OBJS)
+	rm -f $(PROGRAM) $(OBJS) $(INTERM)
+	rm -f $(COMPILER) $(COMPILER_OBJS)
+	rm -f compilerIntermediary.pcode || true
+	rm -f compilerMips.mips || true
 
+int_test_1: $(PROGRAM)
+	$(PROGRAM) example1.txt
 
-test: $(INTERPRETER)
-	$(INTERPRETER) example1.txt
+int_test_2: $(PROGRAM)
+	$(PROGRAM) example2.rst
+
+int_test_3: $(PROGRAM)
+	$(PROGRAM) example3.txt
+
+comp_test_1: $(COMPILER)
+	rm -f compilerIntermediary.pcode || true
+	rm -f compilerMips.mips || true
+	$(COMPILER) example1.txt
+
+comp_test_3: $(COMPILER)
+	rm -f compilerIntermediary.pcode || true
+	rm -f compilerMips.mips || true
+	$(COMPILER) example3.txt

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "Node.h"
 #include "VarList.h"
@@ -60,6 +61,21 @@ void removeLastVarList(VarList* list){
     NEXTNODE(LASTVAR(list)) = NULL;
     SIZEVARLIST(list)--;
 }
+
+void printVarList(VarList* list){
+    printf("[");
+    if(isEmptyVarList(list)){
+        printf("]"); return;
+    }
+    Node* node = FIRSTVAR(list);
+    while(node){
+        printf("%s,",NAMENODE(node));
+        node = NEXTNODE(node);
+    }
+    printf("]\n");
+    return;
+}
+
 void freeVarList(VarList* list){
     if(!isEmptyVarList(list))
         freeNode(NULL,FIRSTVAR(list));

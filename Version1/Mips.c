@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-//#include <unistd.h>
 
 #include "parser.h"
 #include "Instruction.h"
@@ -100,8 +99,8 @@ void printMips(InstrList* list, VarList* vlist){
     }
     
     printf("\n\t.text\n\n");
-    InstrNode* node = NULL;
-    if(list) node = FIRSTINS(list);
+    InstrNode* node = FIRSTINS(list);
+
     while(node){
         Type t = TYPE_INS(VALINS(node));
         switch(t){
@@ -137,7 +136,7 @@ void printMips(InstrList* list, VarList* vlist){
                 break;
             case INS_LOAD_NUM:
                 giveTab();
-                printf("lw $t1, %d\n",NUM_ATOM(SINGE_INS(VALINS(node))));
+                printf("addi $t1, $0, %d\n",NUM_ATOM(SINGE_INS(VALINS(node))));
                 mipsStore("$t1");
                 break;
             case INS_STORE:

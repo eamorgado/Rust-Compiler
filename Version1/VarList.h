@@ -22,6 +22,7 @@ void appendVarList(char*,VarList*);
 void prependVarList(char*,VarList*);
 void removeFirstVarList(VarList*);
 void removeLastVarList(VarList*);
+void printVarList(VarList*);
 void freeVarList(VarList*);
 
 #endif

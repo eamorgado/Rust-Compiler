@@ -74,7 +74,8 @@ Instr* makeInstructionWrite(char*);
 Instr* makeInstructionLabel(int);
 Instr* makeInstructionLetVar(char*);
 
-Instr* makeInstructionJump(int,int);
+Instr* makeInstructionJumpFalse(int);
+Instr* makeInstructionJumpUn(int);
 
 //Instr* makeInstrSingle(int,Atom*);
 //Instr* makeInstrComplex(int,Atom*,Atom*);

@@ -14,6 +14,7 @@ InstrNode* makeInstrNodeComplex(Instr* instr){
     return node;
 }
 void printInstructionNode(InstrNode* node){
+    if(!node) return;
     printInstr(VALINS(node));
     if(NEXTINS(node) != NULL)
         printInstructionNode(NEXTINS(node));
@@ -87,10 +88,10 @@ void removeLastInstrList(InstrList* list){
 
 
 InstrList* concatenateList(InstrList* l1,InstrList* l2){
-    if(SIZEINS(l1) == 0 && SIZEINS(l2) == 0) return;
+    if(SIZEINS(l1) == 0 && SIZEINS(l2) == 0)return NULL;
     if(SIZEINS(l1) == 0) return l2;
     if(SIZEINS(l2) == 0) return l1;
-
+    
     NEXTINS(LASTINS(l1)) = FIRSTINS(l2);
     LASTINS(l1) = LASTINS(l2);
     SIZEINS(l1) += SIZEINS(l2);
@@ -105,6 +106,13 @@ void freeInstrList(InstrList* list){
 }
 
 void printInstrList(InstrList* list){
-    if(SIZEINS(list) >= 1)
-        printInstructionNode(FIRSTINS(list));    
+    if(!list) return;
+    if(SIZEINS(list) >= 1){
+        InstrNode* node = FIRSTINS(list);
+        for(int  i = 0; i < SIZEINS(list); i++){
+            printInstr(VALINS(node));
+            node = NEXTINS(node);
+            i++;
+        }
+    }   
 }

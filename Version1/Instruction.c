@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "Instruction.h"
 
 Atom* makeAtomVar(char* name){
@@ -24,7 +25,6 @@ void printAtom(Atom* atom){
 
 void freeAtom(Atom* atom){
     if(TYPE_ATOM(atom) == VAR) free(VAR_ATOM(atom));
-    else free(NUM_ATOM(atom));
     free(atom);
 }
 /*Instr* makeInstrSingle(Atom* atom){
@@ -93,9 +93,13 @@ Instr* makeInstructionLetVar(char* var){
     return instr;
 }
 
-
-Instr* makeInstructionJump(int unconditional,int label){
-    Instr* instr = makeInstruction((unconditional? INS_JUNCON : INS_JFALSE));
+Instr* makeInstructionJumpFalse(int label){
+    Instr* instr = makeInstruction(INS_JFALSE);
+    SINGE_INS(instr) = makeAtomNum(label);
+    return instr;
+}
+Instr* makeInstructionJumpUn(int label){
+    Instr* instr = makeInstruction(INS_JUNCON);
     SINGE_INS(instr) = makeAtomNum(label);
     return instr;
 }
@@ -123,12 +127,15 @@ void printInstr(Instr* instr){
     }
     if(flag) return;
     switch(TYPE_INS(instr)){
+        case INS_VAR: printf("DECLARE "); break;
         case INS_READ: printf("READ "); break;
         case INS_WRITE: printf("WRITE "); break;
         case INS_LABEL: printf("LABEL "); break;
         case INS_LOAD_VAR: printf("LOAD_VAR "); break;
         case INS_LOAD_NUM: printf("LOAD_CONST "); break;
         case INS_STORE: printf("STORE "); break;
+        case INS_JFALSE: printf("JUMP_ON_FALSE L"); break;
+        case INS_JUNCON: printf("JUMP_UNCONDITIONAL L"); break;
     }
     printAtom(SINGE_INS(instr));
     printf("\n");
