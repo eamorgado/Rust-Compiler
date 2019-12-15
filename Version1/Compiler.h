@@ -13,11 +13,11 @@ InstrList* compileRead(Read*);
 InstrList* compilePrint(Print*);
 InstrList* compileLet(Let*);
 InstrList* compileIf(If*);
-InstrList* compileElse(Else*);
 
 InstrList* compileExp(Expr*);
 InstrList* compileBoolBlock(BoolBlock*);
 InstrList* compileBoolExp(BoolExpr*);
 
-InstrList* compile(CmdBlock*,VarList*);
+VarList* getCompilerVarList();
+InstrList* compile(CmdBlock*);
 #endif

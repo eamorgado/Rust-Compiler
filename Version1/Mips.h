@@ -18,6 +18,6 @@ void mipsLoad(char*);
 void mipsStore(char*);
 void mipsCompare(char*);
 void mipsCompareSub(char*);
-void printMips(InstrList*);
+void printMips(InstrList*,VarList*);
 
 #endif
