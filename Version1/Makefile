@@ -35,6 +35,8 @@ InstructionList.c: Instruction.c Instruction.h InstructionList.h
 Mips.c: parser.c parser.h Instruction.c InstructionList.c VarList.c
 	$(CC) -o Mips Mips.c
 
+Compiler.c: parser.c parser.h Instruction.c VarList.c
+	$(CC) -o Compiler Compiler.c
 
 $(INTERPRETER): $(INTERPRETER_OBJS)
 	$(CC) -o $(INTERPRETER) $(INTERPRETER_OBJS)
