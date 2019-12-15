@@ -22,6 +22,11 @@ void printAtom(Atom* atom){
     else printf("%d",NUM_ATOM(atom));
 }
 
+void freeAtom(Atom* atom){
+    if(TYPE_ATOM(atom) == VAR) free(VAR_ATOM(atom));
+    else free(NUM_ATOM(atom));
+    free(atom);
+}
 /*Instr* makeInstrSingle(Atom* atom){
     Instr* instr = (Instr*)malloc(sizeof(Instr));
     if(!instr) perror("makeInstrSingle: ERROR making instruction");
@@ -71,7 +76,7 @@ Instr* makeInstructionRead(char* var){
 }
 
 Instr* makeInstructionWrite(char* var){
-    Instr* instr = makeInstruction(INS_PRINT);
+    Instr* instr = makeInstruction(INS_WRITE);
     SINGE_INS(instr) = makeAtomVar(var);
     return instr;
 }
@@ -89,32 +94,41 @@ Instr* makeInstructionLetVar(char* var){
 }
 
 
-void freeInstr(Instr*){
-    
+Instr* makeInstructionJump(int unconditional,int label){
+    Instr* instr = makeInstruction((unconditional? INS_JUNCON : INS_JFALSE));
+    SINGE_INS(instr) = makeAtomNum(label);
+    return instr;
 }
+
+
+void freeInstr(Instr* instr){
+    freeAtom(SINGE_INS(instr));  
+    free(instr);  
+}
+
 void printInstr(Instr* instr){
     int flag = 0;
     switch(TYPE_INS(instr)){
-        case INS_ADD: flag = 1; printf("ADI\n"); break;
-        case INS_SUB: flag = 1; printf("SBI\n"); break;
-        case INS_MUL: flag = 1; printf("MPI\n"); break;
-        case INS_DIV: flag = 1; printf("DVI\n"); break;
+        case INS_ADD: flag = 1; printf("ADD\n"); break;
+        case INS_SUB: flag = 1; printf("SUB\n"); break;
+        case INS_MUL: flag = 1; printf("MULT\n"); break;
+        case INS_DIV: flag = 1; printf("DIV\n"); break;
         case INS_MOD: flag = 1; printf("MOD\n"); break;
-        case INS_EQ: flag = 1; printf("EQU\n"); break;
-        case INS_GT: flag = 1; printf("GES\n"); break;
-        case INS_GEQ: flag = 1; printf("GEQ\n"); break;
-        case INS_LT: flag = 1; printf("LES\n"); break;
-        case INS_LEQ: flag = 1; printf("LEQ\n"); break;
-        case INS_NEQ: flag = 1; printf("NEQ\n"); break;
+        case INS_EQ: flag = 1; printf("EQUAL\n"); break;
+        case INS_GT: flag = 1; printf("GREATER_THAN\n"); break;
+        case INS_GEQ: flag = 1; printf("GREATER_EQUAL\n"); break;
+        case INS_LT: flag = 1; printf("LESS_THAN\n"); break;
+        case INS_LEQ: flag = 1; printf("LESS_EQUAL\n"); break;
+        case INS_NEQ: flag = 1; printf("NON_EQUAL\n"); break;
     }
     if(flag) return;
     switch(TYPE_INS(instr)){
         case INS_READ: printf("READ "); break;
-        case INS_PRINT: printf("WRT "); break;
-        case INS_LABEL: printf("L "); break;
-        case INS_LOAD_VAR: printf("LOD "); break;
-        case INS_LOAD_NUM: printf("LDC "); break;
-        case INS_STORE: printf("STO "); break;
+        case INS_WRITE: printf("WRITE "); break;
+        case INS_LABEL: printf("LABEL "); break;
+        case INS_LOAD_VAR: printf("LOAD_VAR "); break;
+        case INS_LOAD_NUM: printf("LOAD_CONST "); break;
+        case INS_STORE: printf("STORE "); break;
     }
     printAtom(SINGE_INS(instr));
     printf("\n");

@@ -14,7 +14,7 @@
 
 typedef enum{
     INS_VAR,        //Variable was declared
-    INS_PRINT,      //print
+    INS_WRITE,      //print
     INS_READ,       //read
 
     INS_ADD,
@@ -34,7 +34,10 @@ typedef enum{
 
     INS_LOAD_VAR,   //Instruction has variable saved
     INS_LOAD_NUM,   //Instruction has num saved
-    INS_STORE
+    INS_STORE,
+
+    INS_JFALSE,
+    INS_JUNCON
 }Type;
 
 typedef struct _atom{
@@ -70,6 +73,8 @@ Instr* makeInstructionRead(char*);
 Instr* makeInstructionWrite(char*);
 Instr* makeInstructionLabel(int);
 Instr* makeInstructionLetVar(char*);
+
+Instr* makeInstructionJump(int,int);
 
 //Instr* makeInstrSingle(int,Atom*);
 //Instr* makeInstrComplex(int,Atom*,Atom*);

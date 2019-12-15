@@ -13,6 +13,19 @@ InstrNode* makeInstrNodeComplex(Instr* instr){
     NEXTINS(node) = NULL;
     return node;
 }
+void printInstructionNode(InstrNode* node){
+    printInstr(VALINS(node));
+    if(NEXTINS(node) != NULL)
+        printInstructionNode(NEXTINS(node));
+}
+void freeInstrNode(InstrNode* parent,InstrNode* son){
+    if(NEXTINS(son) == NULL){//Reached end of node
+        freeInstr(VALINS(son));
+        NEXTINS(parent) = NULL;
+        return;
+    }
+    freeInstrNode(son,NEXTINS(son));
+}
 
 InstrList* makeInstrList(){
     InstrList* list = (InstrList*)malloc(sizeof(InstrList));
@@ -73,8 +86,25 @@ void removeLastInstrList(InstrList* list){
 }
 
 
-InstrList* concatenateList(InstrList*,InstrList*);
+InstrList* concatenateList(InstrList* l1,InstrList* l2){
+    if(SIZEINS(l1) == 0 && SIZEINS(l2) == 0) return;
+    if(SIZEINS(l1) == 0) return l2;
+    if(SIZEINS(l2) == 0) return l1;
+
+    NEXTINS(LASTINS(l1)) = FIRSTINS(l2);
+    LASTINS(l1) = LASTINS(l2);
+    SIZEINS(l1) += SIZEINS(l2);
+    return l1;
+}
 
 
-void freeInstrList(InstrList*);
-void printInstrList(InstrList*);
+void freeInstrList(InstrList* list){
+    if(SIZEINS(list) != 0)
+        freeInstrNode(NULL,FIRSTINS(list));
+    free(list);
+}
+
+void printInstrList(InstrList* list){
+    if(SIZEINS(list) >= 1)
+        printInstructionNode(FIRSTINS(list));    
+}

@@ -23,6 +23,8 @@ typedef struct _instlist{
 
 InstrNode* makeInstrNode();
 InstrNode* makeInstrNodeComplex(Instr*);
+void printInstructionNode(InstrNode*);
+void freeInstrNode(InstrNode*,InstrNode*);
 
 InstrList* makeInstrList();
 Instr* headList(InstrList*);
